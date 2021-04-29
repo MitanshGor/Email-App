@@ -19,7 +19,7 @@ Also keeps record of Successful emails Send  and emails left to send .
 		smtplib should be installed
 
 	Extra :
-		Exccel sheet for emails
+		Excel sheet for emails
 		Htm file for EmailContent
 		Setup Credentials	
 
