@@ -25,13 +25,14 @@ Also keeps record of Successful emails Send  and emails left to send .
 
 
 Setup :
+
 	There should be an excel sheet with the column name . 
 	these column sould contain all the email id to which you want to send the email.
 
 	For making the htm file:
-	Open word docx and jot down the content you want to send.To make it more Viewer-Friendly try to make content designer by giving it colours , suitable text-fonts , text-	size  you like.After the content is ready go to 'save as' and and save it usingHTM file at your sutable location.
+	         Open word docx and jot down the content you want to send.To make it more Viewer-Friendly try to make content designer by giving it colours , suitable text-fonts ,                 text-size you like.After the content is ready go to 'save as' and and save it usingHTM file at your sutable location.
 
-	Credentials should be in the same file as that of python file provided.The first line of this file has "somebody@gmail.com", replace it with the emailid from which 		you want to send email.The 2nd line of credentials file should contain the password of the given emailid.
+	Credentials should be in the same file as that of python file provided.The first line of this file has "somebody@gmail.com", replace it with the emailid from which you want     to send email.The 2nd line of credentials file should contain the password of the given emailid.
 
 
 How to use :
