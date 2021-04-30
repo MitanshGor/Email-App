@@ -1,9 +1,3 @@
-# uncompyle6 version 3.7.4
-# Python bytecode 3.7 (3394)
-# Decompiled from: Python 3.7.3 (v3.7.3:ef4ec6ed12, Mar 25 2019, 22:22:05) [MSC v.1916 64 bit (AMD64)]
-# Embedded file name: C:\Users\Jap Purohit\Desktop\FinalSoftware\mainSoftware.py
-# Compiled at: 2021-04-26 20:35:04
-# Size of source mod 2**32: 16818 bytes
 import tkinter as tk
 from tkinter import ttk
 from tkinter import Frame
@@ -185,16 +179,14 @@ class App(tk.Tk):
         counter = 0
         self.top.withdraw()
         self.ctop.deiconify()
-        self.ctop.title = tk.Label((self.ctop), text='Mailing In Process!', font=('Arial',
-                                                                                  25)).grid(row=1, column=2, pady=(25,
-                                                                                                                   25))
+        self.ctop.title = tk.Label((self.ctop), text='Mailing In Process!', font=('Arial',25)).grid(row=1, column=2, pady=(25,25))
         self.ctop.ctitle.config(text=('Total Mail : ' + str(len(recieverEmail))))
         self.ctop.ctitle1.config(text=('Mail Left : ' + str(len(recieverEmail) - counter)))
         self.ctop.ctitle2.config(text=('Mail Sent : ' + str(counter)))
         self.ctop.update()
         flag = False
         context = ssl.create_default_context()
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as (server):
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as server:
             try:
                 server.login(self.email, self.password)
                 for emailID in recieverEmail:
@@ -206,11 +198,13 @@ class App(tk.Tk):
                     self.ctop.ctitle2.config(text=('Mail Sent : ' + str(counter)))
                     self.ctop.ctitle1.update()
                     self.ctop.ctitle2.update()
+                    
 
             except SMTPAuthenticationError:
                 flag = True
                 mb.showerror('Error', 'Please check that whether EMAILID or PASSWORD is valid or not')
             except:
+                flag=True
                 mb.showerror('Error', 'Some error Occured')
 
         if not flag:
