@@ -12,8 +12,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 from pathlib import Path
-from smtplib import SMTPAuthenticationError
-
+from smtplib import SMTPAuthenticationError,SMTPRecipientsRefused
+import numpy as np
+import threading
 class App(tk.Tk):
 
     def __init__(self):
@@ -155,8 +156,11 @@ class App(tk.Tk):
             self.sendMailFunction()
         else:
             mb.showerror('Error', 'Please enter valid number of files. Number of files left = ' + str(num - len(self.path)))
-
+    
     def messageLoading(self):
+        del self.message['From']
+        del self.message['Subject']
+        del self.message['To']
         html = open(self.htmlFilePath.get()).read()
         part2 = MIMEText(html, 'html')
         self.message['From'] = self.email
@@ -188,25 +192,23 @@ class App(tk.Tk):
         context = ssl.create_default_context()
         with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as server:
             try:
-                server.login(self.email, self.password)
+                server.login(self.email, self.password)     
                 for emailID in recieverEmail:
                     del self.message['To']
-                    self.message['To'] = emailID
-                    server.sendmail(self.message['From'], self.message['To'], self.message.as_string())
-                    counter += 1
-                    self.ctop.ctitle1.config(text=('Mail Left : ' + str(len(recieverEmail) - counter)))
-                    self.ctop.ctitle2.config(text=('Mail Sent : ' + str(counter)))
-                    self.ctop.ctitle1.update()
-                    self.ctop.ctitle2.update()
-                    
-
+                    self.message['To'] = emailID.strip()
+                    try:
+                        server.sendmail(self.message['From'], self.message['To'], self.message.as_string())
+                    except SMTPRecipientsRefused as e:
+                        pass
+                    finally:
+                        counter += 1
+                        self.ctop.ctitle1.config(text=('Mail Left : ' + str(len(recieverEmail) - counter)))
+                        self.ctop.ctitle2.config(text=('Mail Sent : ' + str(counter)))
+                        self.ctop.ctitle1.update()
+                        self.ctop.ctitle2.update()
             except SMTPAuthenticationError:
                 flag = True
-                mb.showerror('Error', 'Please check that whether EMAILID or PASSWORD is valid or not')
-            except:
-                flag=True
-                mb.showerror('Error', 'Some error Occured')
-
+                mb.showerror('Error', 'Please check that whether EMAILID or PASSWORD is valid or not')                
         if not flag:
             mb.showinfo('Success', 'Completed all mails succesfully')
         for widget in self.top.winfo_children():
@@ -324,6 +326,7 @@ class App(tk.Tk):
                     value = self.df.columns.values.tolist()
                     value.insert(0, 'Please select value')
                     self.columnName['values'] = list(value)
+            
 
     def inputExcelFunction(self):
         inputPath = tk.filedialog.askopenfilename(title='Select file', filetypes=(('XLSX Files', '*.xlsx'),
@@ -334,6 +337,7 @@ class App(tk.Tk):
                 self.excelPath.delete(0, END)
                 self.excelPath.insert(0, inputPath)
                 self.excelPath.config(state='readonly')
+
             else:
                 if self.excelPath.get() == '':
                     raise Exception
