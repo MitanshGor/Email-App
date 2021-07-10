@@ -14,17 +14,18 @@ from email import encoders
 from pathlib import Path
 from smtplib import SMTPAuthenticationError,SMTPRecipientsRefused
 import numpy as np
-import threading
 class App(tk.Tk):
 
     def __init__(self):
         self.root = tk.Tk.__init__(self)
+        
         self.title('Mailing App')
         self.message = MIMEMultipart('alternative')
         self.password = open('creditenials.txt').read().splitlines()[1]
         self.email = open('creditenials.txt').read().splitlines()[0]
         self.geometry('500x400')
         self.resizable(False, False)
+        
         self.top = tk.Toplevel(self.root)
         self.top.withdraw()
         self.top.resizable(False, False)
@@ -33,6 +34,7 @@ class App(tk.Tk):
         self.path = {}
         self.ctop = tk.Toplevel(self.root)
         self.ctop.withdraw()
+        
         self.ctop.resizable(False, False)
         self.ctop.title('Mailing Process')
         self.ctop.geometry('300x400')
@@ -178,14 +180,24 @@ class App(tk.Tk):
                 self.message.attach(part)
 
     def mailFunction(self):
+        self.df[self.columnName.get()].replace({r'[^\x00-\x7F]+':''}, regex=True, inplace=True)
+        
         recieverEmail = self.df[self.columnName.get()].tolist()
         recieverEmail = [x for x in recieverEmail if str(x) != 'nan']
+    
+        clean_email_list = []
+        for i in recieverEmail:
+            i.replace('"','')
+            i.replace("'",'')
+            for j in i.split(","):
+                clean_email_list.append(j)
+        
         counter = 0
         self.top.withdraw()
         self.ctop.deiconify()
         self.ctop.title = tk.Label((self.ctop), text='Mailing In Process!', font=('Arial',25)).grid(row=1, column=2, pady=(25,25))
-        self.ctop.ctitle.config(text=('Total Mail : ' + str(len(recieverEmail))))
-        self.ctop.ctitle1.config(text=('Mail Left : ' + str(len(recieverEmail) - counter)))
+        self.ctop.ctitle.config(text=('Total Mail : ' + str(len(clean_email_list))))
+        self.ctop.ctitle1.config(text=('Mail Left : ' + str(len(clean_email_list) - counter)))
         self.ctop.ctitle2.config(text=('Mail Sent : ' + str(counter)))
         self.ctop.update()
         flag = False
@@ -193,16 +205,16 @@ class App(tk.Tk):
         with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as server:
             try:
                 server.login(self.email, self.password)     
-                for emailID in recieverEmail:
+                for emailID in clean_email_list:
                     del self.message['To']
                     self.message['To'] = emailID.strip()
                     try:
                         server.sendmail(self.message['From'], self.message['To'], self.message.as_string())
-                    except SMTPRecipientsRefused as e:
+                    except:
                         pass
                     finally:
                         counter += 1
-                        self.ctop.ctitle1.config(text=('Mail Left : ' + str(len(recieverEmail) - counter)))
+                        self.ctop.ctitle1.config(text=('Mail Left : ' + str(len(clean_email_list) - counter)))
                         self.ctop.ctitle2.config(text=('Mail Sent : ' + str(counter)))
                         self.ctop.ctitle1.update()
                         self.ctop.ctitle2.update()
@@ -322,7 +334,10 @@ class App(tk.Tk):
                 self.columnName['values'] = list(value)
             else:
                 if value.endswith('.csv'):
-                    self.df = pd.read_csv(value)
+                    try:
+                        self.df = pd.read_csv(value,skipinitialspace=True)
+                    except:
+                        self.df = pd.read_csv(value,encoding="latin-1",skipinitialspace=True)
                     value = self.df.columns.values.tolist()
                     value.insert(0, 'Please select value')
                     self.columnName['values'] = list(value)
